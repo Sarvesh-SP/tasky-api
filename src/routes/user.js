@@ -1,82 +1,29 @@
 const express = require("express");
-const User = require("../models/user");
 const router = express.Router();
 
-router.post("/users", async (req, res) => {
-  const user = new User(req.body);
+const {
+  create,
+  fetchAll,
+  fetch,
+  updateSingle,
+  tensai,
+  fetchId,
+} = require("../controllers/users");
 
-  try {
-    await user.save();
-    res.status(201).send(user);
-  } catch (e) {
-    return res.status(401).send(e);
-  }
-});
+router.post("/users", create);
 
-router.get("/users", async (req, res) => {
-  try {
-    const users = await User.find({});
-    return res.send(users);
-  } catch (e) {
-    return res.status(500).send(e);
-  }
-});
+//Fetch All Users
+router.get("/users", fetchAll);
 
-router.get("/users/:id", async (req, res) => {
-  const id = req.params.id;
+//Single Users
+router.get("/users/:id", fetch);
 
-  try {
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).send("Not Found");
-    }
+//Update Single User
+router.patch("/users/:id", updateSingle);
 
-    res.send(user);
-  } catch (e) {
-    return res.status(500).send(e);
-  }
-});
+//Delete Single User
+router.delete("/users/:id", tensai);
 
-router.patch("/users/:id", async (req, res) => {
-  const updates = Object.keys(req.body);
-  const allowedUpdates = ["name", "email", "password", "age"];
-
-  const isValid = updates.every((update) => allowedUpdates.includes(update));
-
-  if (!isValid) {
-    return res.status(400).send({ error: "Invalid updates!." });
-  }
-
-  try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!user) {
-      return res.status(404).send("Not found");
-    }
-
-    res.send(user);
-  } catch (e) {
-    return res.status(400).send({ e });
-  }
-});
-
-router.delete("/users/:id", async (req, res) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
-      return res.status(404).send("Not found");
-    }
-
-    res.send({
-      deleted: true,
-      user,
-    });
-  } catch (e) {
-    return res.status(500).send(e);
-  }
-});
+router.param("id", fetchId);
 
 module.exports = router;

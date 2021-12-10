@@ -6,17 +6,19 @@ exports.create = async (req, res) => {
 
   try {
     await user.save();
-    res.status(201).send(user);
+    const token = await user.generateAuthToken();
+    res.status(201).send({ user, token });
   } catch (e) {
     return res.status(401).send(e);
   }
 };
 
 //Fetch All Users
-exports.fetchAll = async (req, res) => {
+exports.readProfile = async (req, res) => {
   try {
-    const users = await User.find({});
-    return res.send(users);
+    const user = req.user;
+    await user.populate("tasks");
+    res.send(user.tasks);
   } catch (e) {
     return res.status(500).send(e);
   }
@@ -26,7 +28,7 @@ exports.fetchAll = async (req, res) => {
 exports.fetch = async (req, res) => {
   try {
     const user = req.user;
-
+    await user.populate("task");
     res.send(user);
   } catch (e) {
     return res.status(500).send(e);
@@ -59,6 +61,30 @@ exports.updateSingle = async (req, res) => {
   }
 };
 
+exports.logout = async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filter((token) => {
+      return token.token !== req.token;
+    });
+    await req.user.save();
+
+    res.send("Logged out");
+  } catch (e) {
+    return res.status(500).send({ message: "Did'nt logout properly" });
+  }
+};
+
+exports.maxLogout = async (req, res) => {
+  try {
+    req.user.tokens = [];
+    await req.user.save();
+
+    res.send("Logged out of all accounts");
+  } catch (e) {
+    return res.status(500).send({ message: "Did'nt logout properly" });
+  }
+};
+
 //Delete One user
 
 exports.tensai = async (req, res) => {
@@ -75,6 +101,23 @@ exports.tensai = async (req, res) => {
     });
   } catch (e) {
     return res.status(500).send(e);
+  }
+};
+
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.credentials(email, password);
+
+    if (user.error) {
+      return res
+        .status(404)
+        .send({ success: false, message: "User does'nt exist" });
+    }
+    const token = await user.generateAuthToken();
+    res.send({ user: user, token });
+  } catch (e) {
+    res.status(400).send({ error: `Something went wrong ${e}` });
   }
 };
 

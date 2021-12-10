@@ -1,29 +1,42 @@
 const express = require("express");
+const auth = require("../middleware/auth");
 const router = express.Router();
 
 const {
   create,
-  fetchAll,
+
   fetch,
   updateSingle,
   tensai,
-  fetchId,
+
+  login,
+  logout,
+  maxLogout,
+  readProfile,
 } = require("../controllers/users");
 
+//Login
+router.post("/users/login", login);
+
+//Create User - Signup
 router.post("/users", create);
 
-//Fetch All Users
-router.get("/users", fetchAll);
+//Read Profile
+router.get("/users/me", auth, readProfile);
 
 //Single Users
-router.get("/users/:id", fetch);
+// router.get("/users/:id", fetch);
 
 //Update Single User
-router.patch("/users/:id", updateSingle);
+router.patch("/users/me", auth, updateSingle);
+
+//Logout
+router.post("/users/logout", auth, logout);
+
+//Logout All Sessions
+router.post("/users/logoutAll", auth, maxLogout);
 
 //Delete Single User
-router.delete("/users/:id", tensai);
-
-router.param("id", fetchId);
+router.delete("/users/me", auth, tensai);
 
 module.exports = router;

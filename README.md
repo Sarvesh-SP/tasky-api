@@ -1,3 +1,3 @@
 # tasky
 
-Simple Task App
+Simple Task App Usong MVC Pattern

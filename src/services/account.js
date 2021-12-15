@@ -1,7 +1,7 @@
+require("dotenv").config();
 const sgMail = require("@sendgrid/mail");
 
-const sendGrid =
-  "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";
+const sendGrid = process.env.SG_KEY;
 
 sgMail.setApiKey(sendGrid);
 
@@ -20,4 +20,21 @@ const sendEmail = (email, name) => {
     .catch((error) => console.error(error));
 };
 
-module.exports = { sendEmail };
+const cancelEmail = (email, name) => {
+  const msg = {
+    to: email,
+    from: "sarvesh.18cs068@sode-edu.in",
+    subject: "What happend?",
+    text: `Hey, ${name}. Let me know what made you stop using our service, so that we could make it better.🤦‍♂️`,
+    html: `<h1>What happend ${name}🤷‍♀️</h1>
+    <p>Hey, ${name}. Let me know what made you stop using our service, so that we could make it better.</p>
+    <p>GoodBye ${name}😢, We gonna miss ya😭</p>`,
+  };
+
+  sgMail
+    .send(msg)
+    .then(() => console.log("Email Sent"))
+    .catch((error) => console.error(error));
+};
+
+module.exports = { sendEmail, cancelEmail };

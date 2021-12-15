@@ -20,6 +20,8 @@ exports.create = async (req, res) => {
 exports.fetchAll = async (req, res) => {
   const match = {};
   const sort = {};
+  const skip = req.query.skip === undefined ? 0 : req.query.skip;
+  const limit = req.query.limit === undefined ? 0 : req.query.limit;
   const { completed } = req.query;
 
   if (req.query.sortBy) {
@@ -35,8 +37,8 @@ exports.fetchAll = async (req, res) => {
       path: "tasks",
       match,
       options: {
-        limit: parseInt(req.query.limit),
-        skip: parseInt(req.query.skip),
+        limit: parseInt(limit),
+        skip: parseInt(skip),
         sort,
       },
     });
@@ -50,7 +52,7 @@ exports.fetchAll = async (req, res) => {
 
     res.send(req.user.tasks);
   } catch (e) {
-    return res.status(500).send(e);
+    return res.status(500).send({ error: e.message });
   }
 };
 

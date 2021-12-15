@@ -14,17 +14,41 @@ exports.create = async (req, res) => {
   }
 };
 
+//GET /tasks?completed=true
+//GET /tasks?limit=10&skip=0
+//GET /tasks?sortBy=createdAt:desc
 exports.fetchAll = async (req, res) => {
+  const match = {};
+  const sort = {};
+  const { completed } = req.query;
+
+  if (req.query.sortBy) {
+    const parts = req.query.sortBy.split(":");
+    sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
+  }
+
+  if (completed) {
+    match.completed = completed === "true";
+  }
   try {
-    const task = await Task.find({ user: req.user.id });
-    if (task.length === 0) {
+    await req.user.populate({
+      path: "tasks",
+      match,
+      options: {
+        limit: parseInt(req.query.limit),
+        skip: parseInt(req.query.skip),
+        sort,
+      },
+    });
+
+    if (req.user.tasks.length === 0) {
       return res.status(404).send({
         success: false,
         message: "No Task have been save by this user",
       });
     }
 
-    res.send(task);
+    res.send(req.user.tasks);
   } catch (e) {
     return res.status(500).send(e);
   }

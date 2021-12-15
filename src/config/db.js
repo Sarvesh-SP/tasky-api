@@ -1,8 +1,9 @@
+require("dotenv").config();
 const mongoose = require("mongoose");
 const validator = require("validator");
 const connectDB = () => {
   mongoose
-    .connect("mongodb://127.0.0.1/task-manager", {
+    .connect(process.env.MONGO_PROD, {
       useNewUrlParser: true,
     })
     .then(() => {

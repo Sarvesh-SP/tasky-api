@@ -4,15 +4,15 @@ const router = express.Router();
 
 const {
   create,
-
-  fetch,
+  upload,
   updateSingle,
   tensai,
-
   login,
   logout,
   maxLogout,
   readProfile,
+  imgDelete,
+  fetchImg,
 } = require("../controllers/users");
 
 //Login
@@ -36,7 +36,14 @@ router.post("/users/logout", auth, logout);
 //Logout All Sessions
 router.post("/users/logoutAll", auth, maxLogout);
 
+//File Upload
+router.post("/users/me/avatar", auth, upload);
+
+router.get("/users/me/avatar/:id", fetchImg);
+
 //Delete Single User
 router.delete("/users/me", auth, tensai);
+
+router.delete("/users/me/avatar", auth, imgDelete);
 
 module.exports = router;

@@ -4,53 +4,61 @@ const bcrypt = require("bcrypt");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 
-const userSchema = mongoose.Schema({
-  name: {
-    type: String,
-    default: "Anon",
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true,
-    validate(value) {
-      if (!validator.isEmail(value)) {
-        throw new Error("Email is invalid");
-      }
+const userSchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      default: "Anon",
+      required: true,
     },
-  },
-  password: {
-    type: String,
-    required: true,
-    trim: true,
-    minlength: [6, "Add more than 6 characters"],
-    validate(value) {
-      if (value.toLowerCase().includes("password")) {
-        throw new Error("Use a Strong password");
-      }
-    },
-  },
-  age: {
-    type: Number,
-    default: 0,
-    validate(value) {
-      if (value < 0) {
-        throw new Error("Age must be a positive number");
-      }
-    },
-  },
-  tokens: [
-    {
-      token: {
-        type: String,
-        required: true,
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Email is invalid");
+        }
       },
     },
-  ],
-});
+    password: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: [6, "Add more than 6 characters"],
+      validate(value) {
+        if (value.toLowerCase().includes("password")) {
+          throw new Error("Use a Strong password");
+        }
+      },
+    },
+    age: {
+      type: Number,
+      default: 0,
+      validate(value) {
+        if (value < 0) {
+          throw new Error("Age must be a positive number");
+        }
+      },
+    },
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+    avatar: {
+      data: {
+        type: Buffer,
+      },
+    },
+  },
+  { timestamps: true }
+);
 
 //Fetch Task
 userSchema.virtual("tasks", {
@@ -66,8 +74,8 @@ userSchema.methods.toJSON = function () {
 
   delete userObject.password;
   delete userObject.tokens;
+  delete userObject.avatar;
 
-  console.log(userObject);
   return userObject;
 };
 

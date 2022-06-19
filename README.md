@@ -1,3 +1,3 @@
 # tasky
 
-Simple Task App Using Node with MVC Pattern
+Task App Using Node with MVC Pattern
